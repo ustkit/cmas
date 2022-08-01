@@ -15,11 +15,13 @@ import (
 
 var errNoDBConn = errors.New("no database connection")
 
+// RepoPostgreSQL структура PostgreSQL репозитория.
 type RepoPostgreSQL struct {
 	db     *sql.DB
 	config *config.Config
 }
 
+// NewRepositoryPostgreSQL возвращает структуру RepoPostgreSQL.
 func NewRepositoryPostgreSQL(serverConfig *config.Config) (repo RepoPostgreSQL, err error) {
 	db, err := sql.Open("pgx", serverConfig.DataBaseDSN)
 	repo = RepoPostgreSQL{
@@ -34,6 +36,7 @@ func NewRepositoryPostgreSQL(serverConfig *config.Config) (repo RepoPostgreSQL, 
 	return
 }
 
+// Save сохраняет значение value метрики с именем name в репозитории.
 func (repo RepoPostgreSQL) Save(ctx context.Context, name string, value types.Value) error {
 	if repo.db == nil {
 		return errNoDBConn
@@ -55,6 +58,7 @@ func (repo RepoPostgreSQL) Save(ctx context.Context, name string, value types.Va
 	return nil
 }
 
+// SaveAll сохраняет значения метрик в репозитории.
 func (repo RepoPostgreSQL) SaveAll(ctx context.Context, values []types.ValueJSON) (err error) {
 	if repo.db == nil {
 		return errNoDBConn
@@ -114,6 +118,7 @@ func (repo RepoPostgreSQL) SaveAll(ctx context.Context, values []types.ValueJSON
 	return nil
 }
 
+// FindByName находит метрику по имени name в репозитории.
 func (repo RepoPostgreSQL) FindByName(ctx context.Context, name string) (value types.Value, err error) {
 	if repo.db == nil {
 		return value, errNoDBConn
@@ -126,6 +131,7 @@ func (repo RepoPostgreSQL) FindByName(ctx context.Context, name string) (value t
 	return
 }
 
+// FindAll возвращает все метрики из репозитория.
 func (repo RepoPostgreSQL) FindAll(ctx context.Context) (values types.Values, err error) {
 	if repo.db == nil {
 		return values, errNoDBConn
@@ -162,14 +168,17 @@ func (repo RepoPostgreSQL) FindAll(ctx context.Context) (values types.Values, er
 	return values, nil
 }
 
+// Restore восстанавливает метрики в репозитрии из файла заданого в Config.StoreFile.
 func (repo RepoPostgreSQL) Restore() error {
 	return nil
 }
 
+// SaveToFile сохраняет метрики в файл заданный в Config.StoreFile.
 func (repo RepoPostgreSQL) SaveToFile() error {
 	return nil
 }
 
+// Close закрывает репозиторий и высвобождает его ресурсы.
 func (repo RepoPostgreSQL) Close() error {
 	if repo.db == nil {
 		return errNoDBConn
@@ -178,6 +187,7 @@ func (repo RepoPostgreSQL) Close() error {
 	return repo.db.Close()
 }
 
+// Ping возвращает непустую ошибку если репозитория работает нештатно.
 func (repo RepoPostgreSQL) Ping(ctx context.Context) error {
 	if repo.db == nil {
 		return errNoDBConn

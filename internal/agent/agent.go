@@ -23,15 +23,17 @@ import (
 )
 
 const (
-	GAUGE   = "gauge"
-	COUNTER = "counter"
+	GAUGE   = "gauge"   // значение метрики действительное число
+	COUNTER = "counter" // значение метрики целое число
 )
 
+// Metrics структура для хранения OS метрик для агента.
 type Metrics struct {
 	mu     *sync.Mutex
 	Values types.Values
 }
 
+// NewMetrics возвращает новую структуру Metrics для агента.
 func NewMetrics() (metrics Metrics) {
 	metrics = Metrics{Values: make(map[string]*types.Value), mu: &sync.Mutex{}}
 	metrics.Values["Alloc"] = &types.Value{GValue: 0, TValue: "gauge"}
@@ -70,13 +72,14 @@ func NewMetrics() (metrics Metrics) {
 	return
 }
 
+// GopsutilUpdate обновляет метрики TotalMemory, FreeMemory, CPUutilization1 для агента.
 func (metrics *Metrics) GopsutilUpdate() error {
 	virtMem, err := mem.VirtualMemory()
 	if err != nil {
 		return err
 	}
 
-	cpuUtilization, err := cpu.Percent(time.Second, true)
+	cpuUtilization, err := cpu.Percent(0, true)
 	if err != nil {
 		return err
 	}
@@ -91,6 +94,7 @@ func (metrics *Metrics) GopsutilUpdate() error {
 	return nil
 }
 
+// RuntimeUpdate обновляет метрики агента.
 func (metrics *Metrics) RuntimeUpdate() error {
 	memStat := runtime.MemStats{}
 	runtime.ReadMemStats(&memStat)
@@ -127,6 +131,7 @@ func (metrics *Metrics) RuntimeUpdate() error {
 	return nil
 }
 
+// Send отправляет на сервер каждую метрику отдельным запросом.
 func (metrics *Metrics) Send(ctx context.Context, client *http.Client, agentConfig *config.Config) {
 	metrics.mu.Lock()
 	defer metrics.mu.Unlock()
@@ -170,6 +175,7 @@ func (metrics *Metrics) Send(ctx context.Context, client *http.Client, agentConf
 	}
 }
 
+// SendBatch отправляет все метрики на сервер одним запросом.
 func (metrics *Metrics) SendBatch(ctx context.Context, client *http.Client, agentConfig *config.Config) {
 	metrics.mu.Lock()
 	defer metrics.mu.Unlock()

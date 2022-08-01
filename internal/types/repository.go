@@ -2,6 +2,7 @@ package types
 
 import "context"
 
+// MetricRepo интерфейс репозитория метрик.
 type MetricRepo interface {
 	Save(context.Context, string, Value) error
 	SaveAll(context.Context, []ValueJSON) error

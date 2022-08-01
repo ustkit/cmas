@@ -1,0 +1,202 @@
+basePath: /
+definitions:
+  types.RequestValueJSON:
+    properties:
+      id:
+        type: string
+      type:
+        type: string
+    type: object
+  types.ValueJSON:
+    properties:
+      delta:
+        type: integer
+      hash:
+        type: string
+      id:
+        type: string
+      type:
+        type: string
+      value:
+        type: number
+    type: object
+info:
+  contact:
+    name: Mark Vaisman
+  license:
+    name: MIT
+    url: https://github.com/ustkit/cmas/blob/main/LICENSE
+  title: CMAS API
+  version: "1.0"
+paths:
+  /update:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: значение метрики
+        in: body
+        name: value
+        required: true
+        schema:
+          $ref: '#/definitions/types.ValueJSON'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+        "501":
+          description: Not Implemented
+          schema:
+            type: object
+      summary: Обновляет значение метрики
+      tags:
+      - Metrics
+  /update/{type}/{name}:
+    get:
+      consumes:
+      - text/plain
+      parameters:
+      - description: Тип метрики
+        in: path
+        name: type
+        required: true
+        type: string
+      - description: Имя метрики
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+      summary: Возвращает значение метрики
+      tags:
+      - Metrics
+  /update/{type}/{name}/{value}:
+    post:
+      consumes:
+      - text/plain
+      parameters:
+      - description: Тип метрики
+        in: path
+        name: type
+        required: true
+        type: string
+      - description: Имя метрики
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: Значение метрики
+        in: path
+        name: value
+        required: true
+        type: number
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+        "501":
+          description: Not Implemented
+          schema:
+            type: string
+      summary: Обновляет значение метрики
+      tags:
+      - Metrics
+  /updates:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: значения метрик
+        in: body
+        name: value
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/types.ValueJSON'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+        "501":
+          description: Not Implemented
+          schema:
+            type: object
+      summary: Обновляет множество значений метрик
+      tags:
+      - Metrics
+  /value:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: параметры метрики
+        in: body
+        name: value
+        required: true
+        schema:
+          $ref: '#/definitions/types.RequestValueJSON'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.ValueJSON'
+        "204":
+          description: No Content
+          schema:
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            type: object
+        "501":
+          description: Not Implemented
+          schema:
+            type: object
+      summary: Возвращает значение метрики
+      tags:
+      - Metrics
+swagger: "2.0"

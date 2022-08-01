@@ -9,6 +9,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
 	"github.com/ustkit/cmas/internal/server/config"
 	"github.com/ustkit/cmas/internal/server/repositories"
 )

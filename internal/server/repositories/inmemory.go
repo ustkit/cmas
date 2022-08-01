@@ -11,6 +11,7 @@ import (
 	"github.com/ustkit/cmas/internal/types"
 )
 
+// RepoInMemory структура In-memory репозитория.
 type RepoInMemory struct {
 	mutex   *sync.RWMutex
 	storage types.Values
@@ -18,6 +19,7 @@ type RepoInMemory struct {
 	config *config.Config
 }
 
+// NewRepositoryInMemory возвращает структуру RepoInMemory.
 func NewRepositoryInMemory(serverConfig *config.Config) RepoInMemory {
 	return RepoInMemory{
 		mutex:   &sync.RWMutex{},
@@ -27,6 +29,7 @@ func NewRepositoryInMemory(serverConfig *config.Config) RepoInMemory {
 	}
 }
 
+// Save сохраняет значение value метрики с именем name в репозитории.
 func (mr RepoInMemory) Save(ctx context.Context, name string, value types.Value) error {
 	mr.mutex.Lock()
 
@@ -49,6 +52,7 @@ func (mr RepoInMemory) Save(ctx context.Context, name string, value types.Value)
 	return nil
 }
 
+// SaveAll сохраняет значения метрик в репозитории.
 func (mr RepoInMemory) SaveAll(ctx context.Context, values []types.ValueJSON) error {
 	mr.mutex.Lock()
 
@@ -86,6 +90,7 @@ func (mr RepoInMemory) SaveAll(ctx context.Context, values []types.ValueJSON) er
 	return nil
 }
 
+// FindByName находит метрику по имени name в репозитории.
 func (mr RepoInMemory) FindByName(ctx context.Context, name string) (types.Value, error) {
 	mr.mutex.RLock()
 	defer mr.mutex.RUnlock()
@@ -98,6 +103,7 @@ func (mr RepoInMemory) FindByName(ctx context.Context, name string) (types.Value
 	return *value, nil
 }
 
+// FindAll возвращает все метрики из репозитория.
 func (mr RepoInMemory) FindAll(ctx context.Context) (values types.Values, err error) {
 	mr.mutex.RLock()
 	values = mr.storage
@@ -106,6 +112,7 @@ func (mr RepoInMemory) FindAll(ctx context.Context) (values types.Values, err er
 	return values, nil
 }
 
+// Restore восстанавливает метрики в репозитрии из файла заданого в Config.StoreFile.
 func (mr RepoInMemory) Restore() (err error) {
 	if !mr.config.Restore || mr.config.StoreFile == "" {
 		return nil
@@ -133,6 +140,7 @@ func (mr RepoInMemory) Restore() (err error) {
 	return nil
 }
 
+// SaveToFile сохраняет метрики в файл заданный в Config.StoreFile.
 func (mr RepoInMemory) SaveToFile() (err error) {
 	file, err := os.Create(mr.config.StoreFile)
 	if err != nil {
@@ -155,10 +163,12 @@ func (mr RepoInMemory) SaveToFile() (err error) {
 	return
 }
 
+// Close закрывает репозиторий и высвобождает его ресурсы.
 func (mr RepoInMemory) Close() error {
 	return nil
 }
 
+// Ping возвращает непустую ошибку если репозитория работает нештатно.
 func (mr RepoInMemory) Ping(ctx context.Context) error {
 	return nil
 }

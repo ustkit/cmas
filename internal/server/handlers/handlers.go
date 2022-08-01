@@ -1,3 +1,4 @@
+// Пакет handlers содержит методы обработчиков HTTP запросов.
 package handlers
 
 import (
@@ -12,13 +13,14 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+
 	"github.com/ustkit/cmas/internal/server/config"
 	"github.com/ustkit/cmas/internal/types"
 )
 
 const (
-	GAUGE   = "gauge"
-	COUNTER = "counter"
+	GAUGE   = "gauge"   // значение метрики действительное число
+	COUNTER = "counter" // значение метрики целое число
 )
 
 type Handler struct {
@@ -26,10 +28,13 @@ type Handler struct {
 	repository types.MetricRepo
 }
 
+// NewHandler возвращает структуру обработчика HTTP запросов.
 func NewHandler(serverConfig *config.Config, repo types.MetricRepo) Handler {
 	return Handler{config: serverConfig, repository: repo}
 }
 
+// Index обрабатывает GET / запрос.
+// Отображаются актуальные значения метрик.
 func (h *Handler) Index(w http.ResponseWriter, r *http.Request) {
 	result := strings.Builder{}
 	result.WriteString(`
@@ -73,6 +78,20 @@ func (h *Handler) Index(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, result.String())
 }
 
+// UpdatePlain обновляет метрику из POST /update/{type}/{name}/{value} запроса.
+//
+// @Tags	Metrics
+// @Summary	Обновляет значение метрики
+// @Param	type path string true "Тип метрики"
+// @Param	name path string true "Имя метрики"
+// @Param	value path number true "Значение метрики"
+// @Accept	plain
+// @Produce	plain
+// @Success	200
+// @Failure	400 {string} string
+// @Failure	500 {string} string
+// @Failure	501 {string} string
+// @Router /update/{type}/{name}/{value} [post]
 func (h *Handler) UpdatePlain(w http.ResponseWriter, r *http.Request) {
 	mType := chi.URLParam(r, "type")
 	mName := chi.URLParam(r, "name")
@@ -116,6 +135,17 @@ func (h *Handler) UpdatePlain(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 }
 
+// ValuePlain возвращает значение метрики по GET /value/{type}/{name} запросу в текстовом виде.
+//
+// @Tags	Metrics
+// @Summary	Возвращает значение метрики
+// @Param	type path string true "Тип метрики"
+// @Param	name path string true "Имя метрики"
+// @Accept	plain
+// @Produce	plain
+// @Success	200
+// @Failure	404
+// @Router /update/{type}/{name} [get]
 func (h *Handler) ValuePlain(w http.ResponseWriter, r *http.Request) {
 	mType := chi.URLParam(r, "type")
 	mName := chi.URLParam(r, "name")
@@ -141,6 +171,20 @@ func (h *Handler) ValuePlain(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, body)
 }
 
+// UpdateJSON обновляет метрику из POST /update запроса.
+//  Пример JSON тела запроса:
+//  {"id":"PollCount","type":"counter","delta":1}
+//
+// @Tags	Metrics
+// @Summary	Обновляет значение метрики
+// @Param	value body  types.ValueJSON true "значение метрики"
+// @Accept	json
+// @Produce	json
+// @Success	200 {object} object
+// @Failure	404 {object} object
+// @Failure	500 {object} object
+// @Failure	501 {object} object
+// @Router /update [post]
 func (h *Handler) UpdateJSON(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
@@ -210,6 +254,23 @@ func (h *Handler) UpdateJSON(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "{}")
 }
 
+// UpdateJSONBatch обновляет множество метрик за раз по POST /updates/ запросу.
+//  Пример JSON тела запроса:
+//  [
+//	 {"id":"PollCount","type":"counter","delta":1},
+//	 {"id":"RandomValue","type":"gauge","value":321.435}
+//  ]
+//
+// @Tags	Metrics
+// @Summary	Обновляет множество значений метрик
+// @Param	value body  []types.ValueJSON true "значения метрик"
+// @Accept	json
+// @Produce	json
+// @Success	200 {object} object
+// @Failure	404 {object} object
+// @Failure	500 {object} object
+// @Failure	501 {object} object
+// @Router /updates [post]
 func (h *Handler) UpdateJSONBatch(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
@@ -275,6 +336,21 @@ func (h *Handler) UpdateJSONBatch(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "{}")
 }
 
+// ValueJSON возвращает значение метрикbи по POST /value запросу в JSON виде.
+//  Пример JSON тела запроса:
+//  {"id":"PollCount","type":"counter"}
+//
+// @Tags	Metrics
+// @Summary	Возвращает значение метрики
+// @Param	value body  types.RequestValueJSON true "параметры метрики"
+// @Accept	json
+// @Produce	json
+// @Success	200 {object} types.ValueJSON
+// @Failure	204 {object} object
+// @Failure	400 {object} object
+// @Failure	404 {object} object
+// @Failure	501 {object} object
+// @Router /value [post]
 func (h *Handler) ValueJSON(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
@@ -328,6 +404,8 @@ func (h *Handler) ValueJSON(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Ping отвечает на GET /ping запрос.
+// Возвращает HTTP статус 200 Ok, если сервер работает штатно, в противном случае статус 500 Internal Server Error.
 func (h *Handler) Ping(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 

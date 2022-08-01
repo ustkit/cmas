@@ -1,3 +1,4 @@
+// Agent отправляет метрики OS на сервер.
 package main
 
 import (
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"github.com/caarlos0/env/v6"
+
 	"github.com/ustkit/cmas/internal/agent"
 	"github.com/ustkit/cmas/internal/agent/config"
 )
