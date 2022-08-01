@@ -1,5 +1,6 @@
 package config
 
+// Config содержит настройки сервера.
 type Config struct {
 	Address       string `env:"ADDRESS"`
 	StoreInterval string `env:"STORE_INTERVAL"`

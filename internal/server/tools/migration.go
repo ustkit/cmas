@@ -11,6 +11,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
+// Migration осуществляет миграции для БД.
 func Migration(source, dsn string) {
 	m, err := migrate.New(source, dsn)
 	if err != nil {

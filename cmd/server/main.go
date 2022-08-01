@@ -1,3 +1,4 @@
+// Server принимает OS метрики от agent и сохраняет их в репозиториях.
 package main
 
 import (
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"github.com/caarlos0/env/v6"
+
 	"github.com/ustkit/cmas/internal/server/config"
 	"github.com/ustkit/cmas/internal/server/repositories"
 	"github.com/ustkit/cmas/internal/server/router"
@@ -17,6 +19,12 @@ import (
 	"github.com/ustkit/cmas/internal/types"
 )
 
+// @Title CMAS API
+// @Version 1.0
+// @Contact.name Mark Vaisman
+// @License.name MIT
+// @License.url https://github.com/ustkit/cmas/blob/main/LICENSE
+// @BasePath /
 func main() {
 	serverConfig := &config.Config{}
 	flag.StringVar(&serverConfig.Address, "a", "localhost:8080", "server address")
